@@ -1,4 +1,6 @@
-# Transformers TCG Information
+# Transformers TCG Card Database
+
+This is a project to create program that manages a card database for the Transformers TCG. This is mostly an experiment to learn database design, but I would like to expand it into a deck builder and collection tracker eventually. What follows is some notes regarding game information and design.
 
 ## Pip Combinations
 
