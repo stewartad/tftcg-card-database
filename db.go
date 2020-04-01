@@ -1,56 +1,43 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 // AddCard adds a card to the database
-func AddCard(card *Card) {
-	statement, _ := database.Prepare("INSERT INTO cards (cardname, cardset) VALUES (?, ?)")
-	statement.Exec(card.name, card.set)
+func (db databaseInfo) AddCard(card *Card) {
+	db.stmts[addCard].Exec(card.name, card.set)
 }
 
-// GetCards populates the given map with all cards from the database
-func GetCards() {
-	rows, err := database.Query("SELECT id, cardname, cardset FROM cards")
+func (db databaseInfo) GetCard(id int) {
+
+}
+
+// GetAllCards populates the global card map with all cards from the database
+func (db databaseInfo) GetAllCards() {
+	rows, err := db.stmts[getAllCards].Query()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return
 	}
+
 	var id int
 	var name string
 	var set string
+
+	defer rows.Close()
 	for rows.Next() {
-		rows.Scan(&id, &name, &set)
+		err := rows.Scan(&id, &name, &set)
+		if err != nil {
+			log.Fatal(err)
+		}
 		cardMap[id] = Card{id: id, name: name, set: set}
 	}
-}
 
-func connect() {
-	var err error
-	var statement *sql.Stmt
-
-	statement, err = database.Prepare("CREATE TABLE IF NOT EXISTS cards (id INTEGER PRIMARY KEY, cardname TEXT, cardset TEXT)")
+	err = rows.Err()
 	if err != nil {
-		fmt.Println("error preparing statement")
-		fmt.Println(err)
-		return
+		log.Fatal(err)
 	}
-
-	statement.Exec()
-	statement.Close()
-	// statement, _ = database.Prepare("INSERT INTO cards (cardname, cardset) VALUES (?, ?)")
-	// statement.Exec("Improvised Shield", "Wave 1")
-
-	// rows, _ := database.Query("SELECT id, cardname, cardset FROM cards")
-	// var id int
-	// var name string
-	// var set string
-	// for rows.Next() {
-	// 	rows.Scan(&id, &name, &set)
-	// 	fmt.Println(strconv.Itoa(id) + ": " + name + " " + set)
-	// }
 }
